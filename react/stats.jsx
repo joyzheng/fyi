@@ -20,6 +20,128 @@ import {
 import { BookList } from './components/books';
 import { Loadable, loadData } from './components/loader';
 
+class StatsBarChart extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      cluster: 0,
+    };
+  };
+
+  render() {
+    const _this = this;
+
+    const buttons = [];
+    const bars = [
+      <XAxis dataKey="name"/>,
+      <YAxis/>,
+      <Tooltip cursor={false}/>
+    ];
+    let cluster = null;
+    for (let i = 0; i < this.props.series.length; i++) {
+      let series = this.props.series[i];
+      buttons.push(
+        <ToggleButton value={series.name}
+                      onClick={function(){_this.setState({cluster: i})}}>
+          {series.name}
+        </ToggleButton>
+      );
+    }
+
+    cluster = this.props.series[this.state.cluster];
+    if (cluster != null) {
+      bars.push(<Legend/>);
+      for (let i = 0; i < cluster.keys.length; i++) {
+        bars.push(
+          <Bar name={cluster.labels[i]}
+               dataKey={cluster.keys[i]}
+               fill={cluster.fill[i]}
+               stackId="a"
+               legendType="circle"/>
+        );
+      }
+    }
+
+    return <div>
+      <div className="header">
+        <div className="filters buttons">
+          <ToggleButtonGroup type="radio" name="group" value={cluster.name}>
+            {buttons}
+          </ToggleButtonGroup>
+        </div>
+        <h2>{this.props.title}</h2>
+      </div>
+      <div className="chart">
+        <BarChart data={this.props.data}
+                  width={650} height={300}>
+          {bars}
+        </BarChart>
+      </div>
+      <div>
+        {this.props.children}
+      </div>
+    </div>
+  }
+}
+
+class StatsWriting extends React.Component {
+  clusters(names) {
+    const clusters = [];
+    for (let i = 0; i < this.props.series.length; i++) {
+      let series = this.props.series[i];
+      if (names.includes(series.name)) {
+        clusters.push(series);
+      }
+    }
+
+    return clusters
+  }
+
+  render() {
+    return <div>
+      <div>
+        <StatsBarChart
+            title="Over Time"
+            series={this.clusters(["Started", "Completed"])}
+            data={this.props.data}>
+          <p>Some text here</p>
+        </StatsBarChart>
+      </div>
+      <hr/>
+
+      <div>
+        <StatsBarChart
+            title="Authors"
+            series={this.clusters(["Gender", "POC"])}
+            data={this.props.data}>
+          <p>Some text here</p>
+        </StatsBarChart>
+      </div>
+      <hr/>
+
+      <div>
+        <StatsBarChart
+            title="Length"
+            series={this.clusters(["Length"])}
+            data={this.props.data}>
+          <p>Some text here</p>
+        </StatsBarChart>
+      </div>
+      <hr/>
+
+      <div>
+        <StatsBarChart
+            title="Format"
+            series={this.clusters(["Format"])}
+            data={this.props.data}>
+          <p>Some text here</p>
+        </StatsBarChart>
+      </div>
+    </div>;
+  }
+}
+
 class Stats extends React.Component {
   constructor(props, context) {
     super(props, context);
@@ -29,7 +151,6 @@ class Stats extends React.Component {
     this.state.loaded = false;
     this.state.failed = false;
     this.state.group = "month";
-    this.state.cluster = 0;
     this.state.data = {
       series: {},
       data: [],
@@ -56,7 +177,6 @@ class Stats extends React.Component {
   refreshData() {
     const body = {
       group: this.state.group,
-      cluster: this.state.cluster,
     };
     loadData(this, () => fetch("/api/stats", {
       headers: {
@@ -71,91 +191,32 @@ class Stats extends React.Component {
   render() {
     const _this = this;
     const setGroup = this.setGroup;
-
-    const clusterGroups = new Map();
-    const clusters = [];
-    const bars = [
-      <XAxis dataKey="name"/>,
-      <YAxis/>,
-      <Tooltip cursor={false}/>
-    ];
-    let cluster = null;
-    for (let i = 0; i < this.state.data.series.length; i++) {
-      let series = this.state.data.series[i];
-      if (!clusterGroups.has(series.group)) {
-        clusterGroups.set(series.group, []);
-      }
-      clusterGroups.get(series.group).push(
-        <ToggleButton value={series.name}
-                      onClick={function(){_this.setState({cluster: i})}}>
-          {series.name}
-        </ToggleButton>
-      );
-    }
-
-    cluster = this.state.data.series[this.state.cluster];
-    for (let [name, buttons] of clusterGroups) {
-      clusters.push(
-        <span>{name}: </span>
-      );
-      clusters.push(
-        <ToggleButtonGroup type="radio" name={name}
-                           // onChange doesn't work
-                           value={cluster.group == name ? cluster.name : null}>
-          {buttons}
-        </ToggleButtonGroup>
-      );
-    }
-
-    if (cluster != null) {
-      bars.push(<Legend/>);
-      for (let i = 0; i < cluster.keys.length; i++) {
-        bars.push(
-          <Bar name={cluster.labels && cluster.labels[i]}
-               dataKey={cluster.keys[i]}
-               fill={cluster.fill[i]}
-               stackId="a"
-               legendType="circle"/>
-        );
-      }
-    }
-
     return <div>
       <div className="container">
-        <h1>Reading Statistics</h1>
-        <div className="stats">
+        <div className="header">
           <div className="filters buttons">
-            <div>
-              <span>Timeframe: </span>
-              <ToggleButtonGroup type="radio" name="group"
-                                 // onChange doesn't work
-                                 value={_this.state.group}>
-                <ToggleButton value="week" onClick={function(){setGroup("week")}}>
-                  By Week
-                </ToggleButton>
-                <ToggleButton value="month" onClick={function(){setGroup("month")}}>
-                  By Month
-                </ToggleButton>
-                <ToggleButton value="year" onClick={function(){setGroup("year")}}>
-                  By Year
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </div>
-            <div>
-              {clusters}
-            </div>
+            <span>Timeframe: </span>
+            <ToggleButtonGroup type="radio" name="group"
+                               // onChange doesn't work
+                               value={_this.state.group}>
+              <ToggleButton value="week" onClick={function(){setGroup("week")}}>
+                Recent
+              </ToggleButton>
+              <ToggleButton value="month" onClick={function(){setGroup("month")}}>
+                Past Year
+              </ToggleButton>
+              <ToggleButton value="year" onClick={function(){setGroup("year")}}>
+                All-Time
+              </ToggleButton>
+            </ToggleButtonGroup>
           </div>
-          <Loadable loading={this.state.loading} loaded={this.state.loaded} failed={this.state.failed}>
-            <div className="chart">
-              <BarChart data={this.state.data.data}
-                        width={650} height={300}>
-                {bars}
-              </BarChart>
-            </div>
-          </Loadable>
+          <h1>Reading Statistics</h1>
         </div>
+        <Loadable loading={this.state.loading} loaded={this.state.loaded} failed={this.state.failed}>
+          <StatsWriting series={this.state.data.series} data={this.state.data.data}/>
+        </Loadable>
       </div>
-    </div>
+    </div>;
   }
 }
 

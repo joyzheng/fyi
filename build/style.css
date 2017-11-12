@@ -96,9 +96,15 @@ hr {
 	display: block;
 }
 
-.filters.buttons > div {
+.header div.filters {
+	float: right;
+}
+
+.header .filters.buttons {
 	margin-top: 10px;
-	margin-bottom: 10px;
+}
+
+.filters.buttons {
 	font-weight: bold;
 }
 
@@ -106,8 +112,11 @@ hr {
 	margin-right: 3px;
 }
 
-.filters.buttons .btn-group {
-	margin-right: 20px;
+.filters.buttons .btn {
+	padding-top: 3px;
+	padding-bottom: 3px;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 button.tag, button.category {
