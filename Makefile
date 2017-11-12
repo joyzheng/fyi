@@ -23,6 +23,10 @@ setup-python: requirements.txt
 setup-node: react/package.json
 	cd react && npm install
 
+.PHONY: watch
+watch:
+	cd react && ./node_modules/.bin/webpack --watch
+
 build: build/bundle.js
 
 build/bundle.js: react/package.json react/webpack.config.js react/*.jsx react/components/*.jsx
