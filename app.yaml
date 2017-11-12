@@ -4,10 +4,10 @@ manual_scaling:
   instances: 1
 entrypoint: gunicorn -w 3 -k gevent -b :$PORT server.main:app
 skip_files:
-  - ^venv/
+  - venv
   - \.git/
-  - node_modules/
-  - __pycache__/
+  - react/node_modules
+  - .*\.pyc
 
 runtime_config:
   python_version: 3.5
