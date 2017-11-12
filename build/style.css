@@ -1,7 +1,7 @@
 body {
-  padding-top: 50px;
-  padding-bottom: 50px;
-  font-family: 'Imprima', sans-serif;
+	padding-top: 50px;
+	padding-bottom: 50px;
+	font-family: 'Imprima', sans-serif;
 }
 
 nav.navbar-inverse,
@@ -16,17 +16,17 @@ nav.navbar-inverse,
 }
 
 .container {
-  max-width: 768px;
+	max-width: 768px;
 }
 
 .container.main {
-  text-align: center;
+	text-align: center;
 }
 
 .container.main img {
-  max-height: 300px;
-  margin-top: 10px;
-  margin-bottom: 10px;
+	width: 300px;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 .announce {
@@ -163,5 +163,11 @@ button.category:focus {
 	.book span.tags {
 		margin-left: 0px;
 		display: block;
+	}
+}
+
+@media screen and (max-width: 330px) {
+	.container.main img {
+		width: 100%;
 	}
 }
