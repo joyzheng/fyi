@@ -24,7 +24,7 @@ nav.navbar-inverse,
 }
 
 .container.main img {
-	width: 300px;
+	height: 300px;
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
@@ -168,6 +168,7 @@ button.category:focus {
 
 @media screen and (max-width: 330px) {
 	.container.main img {
+		height: auto;
 		width: 100%;
 	}
 }
