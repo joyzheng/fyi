@@ -67,5 +67,5 @@ def add(app):
         return {
             "current": current,
             "other": other,
-            "categories": top_node,
+            "categories": [top_node],
         }

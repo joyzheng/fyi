@@ -9,6 +9,10 @@ nav.navbar-inverse,
 	background-color: #28231d;
 }
 
+.failed .progress-bar {
+	background-color: #3d0606;
+}
+
 .navbar-inverse .navbar-nav > .active > a,
 .navbar-inverse .navbar-nav > .active > a:hover,
 .navbar-inverse .navbar-nav > .active > a:focus {

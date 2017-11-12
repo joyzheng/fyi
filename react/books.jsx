@@ -13,6 +13,7 @@ import {
 
 import { BookDescriptor, BookList } from './components/books';
 import { Filterable, Filters } from './components/filters';
+import { Loadable, loadData } from './components/loader';
 
 class BooksTree extends React.Component {
   constructor(props, context) {
@@ -34,12 +35,17 @@ class BooksTree extends React.Component {
   }
 
   render() {
-    const doCount = (node) => {
-      let count = 1;
-      for (let i = 0; i < node.children.length; i++) {
-        count += doCount(node.children[i]);
+    let categoryCount = 0;
+    if (this.props.categories.length > 0) {
+      const doCount = (node) => {
+        let count = 1;
+        for (let i = 0; i < node.children.length; i++) {
+          count += doCount(node.children[i]);
+        }
+        return count;
       }
-      return count;
+
+      categoryCount = doCount(this.props.categories[0]);
     }
 
     const onClick = (node) => {
@@ -50,8 +56,8 @@ class BooksTree extends React.Component {
     };
     return <Panel className="right"><div ref={tc => this.treeContainer = tc}>
       <Tree
-        data={[this.props.categories]}
-        initialDepth={doCount(this.props.categories) < 20 ? undefined : 2}
+        data={this.props.categories}
+        initialDepth={categoryCount < 20 ? undefined : 2}
         translate={this.state.translate}
         nodeSize={{x: 100, y: 15}}
         textLayout={{textAnchor: "start", x: 10, y: 0}}
@@ -80,8 +86,14 @@ class Books extends Filterable {
   constructor(props, context) {
     super(props, context);
 
-    this.state.loaded = false;
     this.state.loading = true;
+    this.state.loaded = false;
+    this.state.failed = false;
+    this.state.data = {
+      current: [],
+      other: [],
+      categories: [],
+    };
     this.state.current = [];
     this.state.other = [];
 
@@ -89,33 +101,18 @@ class Books extends Filterable {
   };
 
   refreshData() {
-    const _this = this;
-    _this.setState({loading: true});
-
     const body = {
       tags: this.state.filter_tags,
       categories: this.state.filter_categories
     };
-    fetch("/api/books", {
+    loadData(this, () => fetch("/api/books", {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       method: "POST",
       body: JSON.stringify(body)
-    })
-      .then(function(response) {
-        if (response.ok) {
-          return response.json();
-        }
-        console.error("Request failed");
-      })
-      .then(function(result) {
-        if (result != null) {
-          _this.setState(result);
-          _this.setState({loaded: true, loading: false});
-        }
-      });
+    }));
   }
 
   render() {
@@ -136,18 +133,11 @@ class Books extends Filterable {
           go <LinkContainer to="/list"><a>here</a></LinkContainer> for
           a list without the tree.
         </p>
-        {this.state.loading &&
-          <div>
-            <ProgressBar active now={100} label="Loading..."/>
-          </div>
-        }
-        {this.state.loaded &&
-          <BooksTree categories={this.state.categories} addCategory={this.addCategory}/>
-        }
-        {this.state.loaded && <hr/>}
-        {this.state.loaded &&
-          <BookList books={this.state.current.concat(this.state.other)} filterActions={filter_actions} />
-        }
+        <Loadable loading={this.state.loading} loaded={this.state.loaded} failed={this.state.failed}>
+          <BooksTree categories={this.state.data.categories} addCategory={this.addCategory}/>
+          <hr/>
+          <BookList books={this.state.data.current.concat(this.state.data.other)} filterActions={filter_actions} />
+        </Loadable>
       </div>
       <Filters tags={this.state.filter_tags} categories={this.state.filter_categories}
                removeTag={removeTag} removeCategory={removeCategory} />

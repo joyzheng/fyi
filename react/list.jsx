@@ -9,46 +9,36 @@ import {
 
 import { BookDescriptor, BookList } from './components/books';
 import { Filterable, Filters } from './components/filters';
+import { Loadable, loadData } from './components/loader';
 
 class Books extends Filterable {
   constructor(props, context) {
     super(props, context);
 
     this.state.loading = true;
-    this.state.current = [];
-    this.state.other = [];
+    this.state.loaded = false;
+    this.state.failed = false;
+    this.state.data = {
+      current: [],
+      other: [],
+    };
 
     this.refreshData = this.refreshData.bind(this);
   };
 
   refreshData() {
-    const _this = this;
-    _this.setState({loading: true});
-
     const body = {
       tags: this.state.filter_tags,
       categories: this.state.filter_categories
     };
-    fetch("/api/books", {
+    loadData(this, () => fetch("/api/books", {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       method: "POST",
       body: JSON.stringify(body)
-    })
-      .then(function(response) {
-        if (response.ok) {
-          return response.json();
-        }
-        console.error("Request failed");
-      })
-      .then(function(result) {
-        if (result != null) {
-          _this.setState(result);
-          _this.setState({loading: false});
-        }
-      });
+    }));
   }
 
   render() {
@@ -69,20 +59,17 @@ class Books extends Filterable {
               Recommended
             </Button>.
         </p>
-        {this.state.loading &&
-          <div>
-            <ProgressBar active now={100} label="Loading..."/>
-          </div>
-        }
-        {!this.state.loading && this.state.current.length > 0 &&
-          <Panel>
-            <h2>Currently Reading</h2>
-            <BookList books={this.state.current} filterActions={filter_actions}/>
-          </Panel>
-        }
-        {!this.state.loading && this.state.other.length > 0 &&
-          <BookList books={this.state.other} filterActions={filter_actions} />
-        }
+        <Loadable loading={this.state.loading} loaded={this.state.loaded} failed={this.state.failed}>
+          {this.state.data.current.length > 0 &&
+            <Panel>
+              <h2>Currently Reading</h2>
+              <BookList books={this.state.data.current} filterActions={filter_actions}/>
+            </Panel>
+          }
+          {this.state.data.other.length > 0 &&
+            <BookList books={this.state.data.other} filterActions={filter_actions} />
+          }
+        </Loadable>
       </div>
       <Filters tags={this.state.filter_tags} categories={this.state.filter_categories}
                removeTag={removeTag} removeCategory={removeCategory} />

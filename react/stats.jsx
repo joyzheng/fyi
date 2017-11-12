@@ -18,17 +18,22 @@ import {
 } from 'recharts';
 
 import { BookList } from './components/books';
-import { Filterable } from './components/filters';
+import { Loadable, loadData } from './components/loader';
 
-
-// TODO: extends filterable
-class Stats extends Filterable {
+class Stats extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    this.state = {};
     this.state.loading = true;
+    this.state.loaded = false;
+    this.state.failed = false;
     this.state.group = "month";
     this.state.cluster = 0;
+    this.state.data = {
+      series: {},
+      data: [],
+    };
 
     this.setGroup = this.setGroup.bind(this);
     this.refreshData = this.refreshData.bind(this);
@@ -38,47 +43,29 @@ class Stats extends Filterable {
     this.setState({group: group});
   }
 
+  componentDidMount() {
+    this.refreshData();
+  }
+
   componentDidUpdate(prevProps, prevState) {
-    if (!(_.isEqual(this.state.group, prevState.group) &&
-          _.isEqual(this.state.filter_tags, prevState.filter_tags) &&
-          _.isEqual(this.state.filter_categories, prevState.filter_categories))) {
+    if (!_.isEqual(this.state.group, prevState.group)) {
       this.refreshData();
     }
   }
 
   refreshData() {
-    const _this = this;
-    _this.setState({loading: true});
-
     const body = {
       group: this.state.group,
       cluster: this.state.cluster,
-      tags: this.state.filter_tags,
-      categories: this.state.filter_categories
     };
-    fetch("/api/stats", {
+    loadData(this, () => fetch("/api/stats", {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       method: "POST",
       body: JSON.stringify(body)
-    })
-      .then(function(response) {
-        if (response.ok) {
-          return response.json();
-        }
-        console.error("Request failed");
-      })
-      .then(function(result) {
-        if (result != null) {
-          _this.setState({
-            series: result.series,
-            data: result.data,
-            loading: false,
-          });
-        }
-      });
+    }));
   }
 
   render() {
@@ -93,37 +80,35 @@ class Stats extends Filterable {
       <Tooltip cursor={false}/>
     ];
     let cluster = null;
-    if (this.state.data != null) {
-      for (let i = 0; i < this.state.series.length; i++) {
-        let series = this.state.series[i];
-        if (!clusterGroups.has(series.group)) {
-          clusterGroups.set(series.group, []);
-        }
-        clusterGroups.get(series.group).push(
-          <ToggleButton value={series.name}
-                        onClick={function(){_this.setState({cluster: i})}}>
-            {series.name}
-          </ToggleButton>
-        );
+    for (let i = 0; i < this.state.data.series.length; i++) {
+      let series = this.state.data.series[i];
+      if (!clusterGroups.has(series.group)) {
+        clusterGroups.set(series.group, []);
       }
+      clusterGroups.get(series.group).push(
+        <ToggleButton value={series.name}
+                      onClick={function(){_this.setState({cluster: i})}}>
+          {series.name}
+        </ToggleButton>
+      );
+    }
 
-      cluster = this.state.series[this.state.cluster];
-      for (let [name, buttons] of clusterGroups) {
-        clusters.push(
-          <span>{name}: </span>
-        );
-        clusters.push(
-          <ToggleButtonGroup type="radio" name={name}
-                             // onChange doesn't work
-                             value={cluster.group == name ? cluster.name : null}>
-            {buttons}
-          </ToggleButtonGroup>
-        );
-      }
+    cluster = this.state.data.series[this.state.cluster];
+    for (let [name, buttons] of clusterGroups) {
+      clusters.push(
+        <span>{name}: </span>
+      );
+      clusters.push(
+        <ToggleButtonGroup type="radio" name={name}
+                           // onChange doesn't work
+                           value={cluster.group == name ? cluster.name : null}>
+          {buttons}
+        </ToggleButtonGroup>
+      );
+    }
 
-      if (cluster.labels != null) {
-        bars.push(<Legend/>);
-      }
+    if (cluster != null) {
+      bars.push(<Legend/>);
       for (let i = 0; i < cluster.keys.length; i++) {
         bars.push(
           <Bar name={cluster.labels && cluster.labels[i]}
@@ -135,54 +120,40 @@ class Stats extends Filterable {
       }
     }
 
-    // TODO: use window size
     return <div>
       <div className="container">
         <h1>Reading Statistics</h1>
-        {this.state.loading && this.state.data == null &&
-          <div>
-            <ProgressBar active now={100} label="Loading..."/>
-          </div>
-        }
-        {this.state.data != null &&
-          <div className="stats">
-            <div className="filters buttons">
-              <div>
-                <span>Timeframe: </span>
-                <ToggleButtonGroup type="radio" name="group"
-                                   // onChange doesn't work
-                                   value={_this.state.group}>
-                  <ToggleButton value="week" onClick={function(){setGroup("week")}}>
-                    By Week
-                  </ToggleButton>
-                  <ToggleButton value="month" onClick={function(){setGroup("month")}}>
-                    By Month
-                  </ToggleButton>
-                  <ToggleButton value="year" onClick={function(){setGroup("year")}}>
-                    By Year
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </div>
-              <div>
-                {clusters}
-              </div>
+        <div className="stats">
+          <div className="filters buttons">
+            <div>
+              <span>Timeframe: </span>
+              <ToggleButtonGroup type="radio" name="group"
+                                 // onChange doesn't work
+                                 value={_this.state.group}>
+                <ToggleButton value="week" onClick={function(){setGroup("week")}}>
+                  By Week
+                </ToggleButton>
+                <ToggleButton value="month" onClick={function(){setGroup("month")}}>
+                  By Month
+                </ToggleButton>
+                <ToggleButton value="year" onClick={function(){setGroup("year")}}>
+                  By Year
+                </ToggleButton>
+              </ToggleButtonGroup>
             </div>
-
-            {this.state.loading &&
-              <div>
-                <ProgressBar active now={100} label="Loading..."/>
-              </div>
-            }
-            {!this.state.loading &&
-              <div className="chart">
-                <BarChart data={this.state.data}
-                          width={650} height={300}>
-                  {bars}
-                </BarChart>
-              </div>
-            }
+            <div>
+              {clusters}
+            </div>
           </div>
-        }
+          <Loadable loading={this.state.loading} loaded={this.state.loaded} failed={this.state.failed}>
+            <div className="chart">
+              <BarChart data={this.state.data.data}
+                        width={650} height={300}>
+                {bars}
+              </BarChart>
+            </div>
+          </Loadable>
+        </div>
       </div>
     </div>
   }
