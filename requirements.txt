@@ -1,0 +1,5 @@
+bottle==0.12.13
+gevent==1.2.2
+gunicorn==19.7.1
+PyMySQL==0.7.11
+SQLAlchemy==1.2.0b2
