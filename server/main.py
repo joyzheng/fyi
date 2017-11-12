@@ -14,8 +14,7 @@ def redirect_http_to_https(callback):
     """Bottle plugin that redirects all http requests to https"""
 
     def wrapper(*args, **kwargs):
-        scheme = bottle.request.urlparts[0]
-        if scheme == "http":
+        if bottle.request.get_header("X-FORWARDED-PROTO") == "http":
             # request is http; redirect to https
             bottle.redirect(bottle.request.url.replace("http", "https", 1))
         else:
@@ -23,7 +22,7 @@ def redirect_http_to_https(callback):
             return callback(*args, **kwargs)
     return wrapper
 
-# app.install(redirect_http_to_https)
+app.install(redirect_http_to_https)
 
 
 if __name__ == "__main__":
