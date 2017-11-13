@@ -2,6 +2,7 @@ body {
 	padding-top: 50px;
 	padding-bottom: 50px;
 	font-family: 'Imprima', sans-serif;
+	text-align: justify;
 }
 
 nav.navbar-inverse,
@@ -17,6 +18,10 @@ nav.navbar-inverse,
 .navbar-inverse .navbar-nav > .active > a:hover,
 .navbar-inverse .navbar-nav > .active > a:focus {
 	background-color: #211c17;
+}
+
+.navbar img {
+	height: 20px;
 }
 
 .container {

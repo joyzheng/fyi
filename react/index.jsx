@@ -8,6 +8,7 @@ import {
   Switch
 } from 'react-router-dom';
 import {
+  Image,
   Nav,
   Navbar,
   NavItem
@@ -27,9 +28,9 @@ class App extends React.Component {
         <Navbar inverse fixedTop>
           <Navbar.Header>
             <Navbar.Brand>
-            <LinkContainer to="/">
-            <a>joy.fyi</a>
-            </LinkContainer>
+              <LinkContainer to="/">
+                <a>joy.fyi</a>
+              </LinkContainer>
             </Navbar.Brand>
             <Navbar.Toggle />
           </Navbar.Header>
@@ -38,21 +39,19 @@ class App extends React.Component {
               <LinkContainer to="/books">
                 <NavItem>Books</NavItem>
               </LinkContainer>
-            </Nav>
-            <Nav>
               <LinkContainer to="/explore">
                 <NavItem>Explore</NavItem>
               </LinkContainer>
-            </Nav>
-            <Nav>
               <LinkContainer to="/list">
                 <NavItem>List</NavItem>
               </LinkContainer>
-            </Nav>
-            <Nav>
               <LinkContainer to="/about">
                 <NavItem>About</NavItem>
               </LinkContainer>
+            </Nav>
+            <Nav pullRight>
+              <NavItem href="https://github.com/joyzheng/fyi"><Image src="/static/github.png" alt="Github"/></NavItem>
+              <NavItem href="https://twitter.com/joyzpanda"><Image src="/static/twitter.png" alt="Twitter"/></NavItem>
             </Nav>
           </Navbar.Collapse>
         </Navbar>
