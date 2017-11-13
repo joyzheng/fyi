@@ -51,7 +51,7 @@ class Books extends Filterable {
 
     return <div>
       <div className="container">
-        <h1>Books</h1>
+        <h1>List</h1>
         <BookDescriptor/>
         <p>
           Favorite books are tagged with

@@ -16,8 +16,8 @@ import {
 import Home from './home';
 import About from './about';
 import Books from './books';
+import Explore from './explore';
 import List from './list';
-import Stats from './stats';
 import NotFound from './notfound';
 
 class App extends React.Component {
@@ -40,13 +40,13 @@ class App extends React.Component {
               </LinkContainer>
             </Nav>
             <Nav>
-              <LinkContainer to="/list">
-                <NavItem>List</NavItem>
+              <LinkContainer to="/explore">
+                <NavItem>Explore</NavItem>
               </LinkContainer>
             </Nav>
             <Nav>
-              <LinkContainer to="/stats">
-                <NavItem>Stats</NavItem>
+              <LinkContainer to="/list">
+                <NavItem>List</NavItem>
               </LinkContainer>
             </Nav>
             <Nav>
@@ -60,10 +60,10 @@ class App extends React.Component {
         <Switch>
           {/* <Route exact path="/" component={Home}/>*/}
           <Redirect exact to="/books" from="/"/>
-          <Route path="/about" component={About}/>
           <Route path="/books" component={Books}/>
+          <Route path="/explore" component={Explore}/>
           <Route path="/list" component={List}/>
-          <Route path="/stats" component={Stats}/>
+          <Route path="/about" component={About}/>
           <Route exact path="/404" component={NotFound}/>
           <Redirect to="/404"/>
         </Switch>

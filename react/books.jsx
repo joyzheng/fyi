@@ -1,111 +1,184 @@
 import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { LinkContainer } from 'react-router-bootstrap';
 import {
   Button,
-  Panel,
-  ProgressBar
+  ButtonGroup,
+  ProgressBar,
+  ToggleButton,
+  ToggleButtonGroup,
 } from 'react-bootstrap';
 import {
-  Tree,
-} from 'react-d3-tree';
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Legend,
+  Tooltip,
+} from 'recharts';
 
-import { BookDescriptor, BookList } from './components/books';
-import { Filterable, Filters } from './components/filters';
+import { BookList } from './components/books';
 import { Loadable, loadData } from './components/loader';
 
-class BooksTree extends React.Component {
+class StatsBarChart extends React.Component {
   constructor(props, context) {
     super(props, context);
 
     this.state = {
-      translate: {x: 20, y: 0},
+      cluster: 0,
     };
   };
 
-  componentDidMount() {
-    const dimensions = this.treeContainer.getBoundingClientRect();
-    this.setState({
-      translate: {
-        x: 20,
-        y: dimensions.height / 2,
-      },
-    });
-  }
-
   render() {
-    let categoryCount = 0;
-    if (this.props.categories.length > 0) {
-      const doCount = (node) => {
-        let count = 1;
-        for (let i = 0; i < node.children.length; i++) {
-          count += doCount(node.children[i]);
-        }
-        return count;
-      }
+    const _this = this;
 
-      categoryCount = doCount(this.props.categories[0]);
+    const buttons = [];
+    const bars = [
+      <XAxis dataKey="name"/>,
+      <YAxis/>,
+      <Tooltip cursor={false}/>
+    ];
+    let cluster = null;
+    for (let i = 0; i < this.props.series.length; i++) {
+      let series = this.props.series[i];
+      buttons.push(
+        <ToggleButton value={series.name}
+                      onClick={function(){_this.setState({cluster: i})}}>
+          {series.name}
+        </ToggleButton>
+      );
     }
 
-    const onClick = (node) => {
-      if (node.name === "Books") {
-        return;
+    cluster = this.props.series[this.state.cluster];
+    if (cluster != null) {
+      bars.push(<Legend/>);
+      for (let i = 0; i < cluster.keys.length; i++) {
+        bars.push(
+          <Bar name={cluster.labels[i]}
+               dataKey={cluster.keys[i]}
+               fill={cluster.fill[i]}
+               stackId="a"
+               legendType="circle"/>
+        );
       }
-      this.props.addCategory(node.name);
-    };
-    return <Panel className="right"><div ref={tc => this.treeContainer = tc}>
-      <Tree
-        data={this.props.categories}
-        initialDepth={categoryCount < 20 ? undefined : 2}
-        translate={this.state.translate}
-        nodeSize={{x: 100, y: 15}}
-        textLayout={{textAnchor: "start", x: 10, y: 0}}
-        scaleExtent={{min: 1, max: 2}}
-        nodeSvgShape={{
-          shape: 'circle',
-          shapeProps: {
-            r: 5,
-            stroke: "#333",
-            fill: "#9d9d9d",
-          }
-        }}
-        onClick={onClick}
-        collapsible={false}
-        styles={{
-          links: {
-            stroke: "#9d9d9d",
-          },
-        }}
-      />
-    </div></Panel>
+    }
+
+    return <div>
+      <div className="header">
+        <div className="filters buttons">
+          <ToggleButtonGroup type="radio" name="group" value={cluster.name}>
+            {buttons}
+          </ToggleButtonGroup>
+        </div>
+        <h2>{this.props.title}</h2>
+      </div>
+      <div className="chart">
+        <BarChart data={this.props.data}
+                  width={650} height={300}>
+          {bars}
+        </BarChart>
+      </div>
+      <div>
+        {this.props.children}
+      </div>
+    </div>
   }
 }
 
-class Books extends Filterable {
+class StatsWriting extends React.Component {
+  clusters(names) {
+    const clusters = [];
+    for (let i = 0; i < this.props.series.length; i++) {
+      let series = this.props.series[i];
+      if (names.includes(series.name)) {
+        clusters.push(series);
+      }
+    }
+
+    return clusters
+  }
+
+  render() {
+    return <div>
+      <div>
+        <StatsBarChart
+            title="Over Time"
+            series={this.clusters(["Started", "Completed"])}
+            data={this.props.data}>
+          <p>Some text here</p>
+        </StatsBarChart>
+      </div>
+      <hr/>
+
+      <div>
+        <StatsBarChart
+            title="Authors"
+            series={this.clusters(["Gender", "POC"])}
+            data={this.props.data}>
+          <p>Some text here</p>
+        </StatsBarChart>
+      </div>
+      <hr/>
+
+      <div>
+        <StatsBarChart
+            title="Length"
+            series={this.clusters(["Length"])}
+            data={this.props.data}>
+          <p>Some text here</p>
+        </StatsBarChart>
+      </div>
+      <hr/>
+
+      <div>
+        <StatsBarChart
+            title="Format"
+            series={this.clusters(["Format"])}
+            data={this.props.data}>
+          <p>Some text here</p>
+        </StatsBarChart>
+      </div>
+    </div>;
+  }
+}
+
+class Books extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    this.state = {};
     this.state.loading = true;
     this.state.loaded = false;
     this.state.failed = false;
+    this.state.group = "month";
     this.state.data = {
-      current: [],
-      other: [],
-      categories: [],
+      series: {},
+      data: [],
     };
-    this.state.current = [];
-    this.state.other = [];
 
+    this.setGroup = this.setGroup.bind(this);
     this.refreshData = this.refreshData.bind(this);
   };
 
+  setGroup(group) {
+    this.setState({group: group});
+  }
+
+  componentDidMount() {
+    this.refreshData();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!_.isEqual(this.state.group, prevState.group)) {
+      this.refreshData();
+    }
+  }
+
   refreshData() {
     const body = {
-      tags: this.state.filter_tags,
-      categories: this.state.filter_categories
+      group: this.state.group,
     };
-    loadData(this, () => fetch("/api/books", {
+    loadData(this, () => fetch("/api/stats", {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -116,32 +189,34 @@ class Books extends Filterable {
   }
 
   render() {
-    const filter_actions = {
-      addTag: this.addTag,
-      addCategory: this.addCategory,
-    };
-    const removeTag = this.removeTag;
-    const removeCategory = this.removeCategory;
-
+    const _this = this;
+    const setGroup = this.setGroup;
     return <div>
       <div className="container">
-        <h1>Explore</h1>
-        <BookDescriptor/>
-        <p>
-          Explore using the category tree on the right and the
-          tags at the bottom, or
-          go <LinkContainer to="/list"><a>here</a></LinkContainer> for
-          a list without the tree.
-        </p>
+        <div className="header">
+          <div className="filters buttons">
+            <span>Timeframe: </span>
+            <ToggleButtonGroup type="radio" name="group"
+                               // onChange doesn't work
+                               value={_this.state.group}>
+              <ToggleButton value="week" onClick={function(){setGroup("week")}}>
+                Recent
+              </ToggleButton>
+              <ToggleButton value="month" onClick={function(){setGroup("month")}}>
+                Past Year
+              </ToggleButton>
+              <ToggleButton value="year" onClick={function(){setGroup("year")}}>
+                All-Time
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </div>
+          <h1>Books</h1>
+        </div>
         <Loadable loading={this.state.loading} loaded={this.state.loaded} failed={this.state.failed}>
-          <BooksTree categories={this.state.data.categories} addCategory={this.addCategory}/>
-          <hr/>
-          <BookList books={this.state.data.current.concat(this.state.data.other)} filterActions={filter_actions} />
+          <StatsWriting series={this.state.data.series} data={this.state.data.data}/>
         </Loadable>
       </div>
-      <Filters tags={this.state.filter_tags} categories={this.state.filter_categories}
-               removeTag={removeTag} removeCategory={removeCategory} />
-    </div>
+    </div>;
   }
 }
 
