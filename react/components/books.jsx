@@ -26,16 +26,16 @@ class Book extends React.Component {
     });
 
     return <div className="book">
+      <p className="title">
+        {title}
+      </p>
       <p>
-        <span className="title">
-          {title}
+        <span className="author">
+          {this.props.authors.join(", ")} ({this.props.year})
         </span>
         <span className="tags">
           {tags}
           {categories}
-        </span>
-        <span className="author">
-          {this.props.authors.join(", ")} ({this.props.year})
         </span>
       </p>
     </div>
