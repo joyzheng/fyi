@@ -55,6 +55,11 @@ def add(args):
         series, series_number = get_or_create_series(session, args.series)
         book.series = series
         book.series_number = series_number
+    if args.finished_at:
+        book.finished_at = datetime.strptime(args.finished_at, "%m/%d/%y")
+    if args.started_at:
+        book.acquired_at = datetime.strptime(args.started_at, "%m/%d/%y")
+        book.started_at = datetime.strptime(args.started_at, "%m/%d/%y")
 
     book.form = prompt_named_options('Form?', {
         'ebook': ['e'],
@@ -120,6 +125,8 @@ if __name__ == "__main__":
     parser_add.add_argument('--categories', type=str, required=True)
     parser_add.add_argument('--finished', action='store_true')
     parser_add.add_argument('--recommend', action='store_true')
+    parser_add.add_argument('--started_at', type=str)
+    parser_add.add_argument('--finished_at', type=str)
     parser_add.set_defaults(func=add)
 
     args = parser.parse_args()
