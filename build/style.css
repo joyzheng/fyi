@@ -5,7 +5,12 @@ body {
 	text-align: justify;
 }
 
-nav.navbar-inverse,
+.panel p:last-child,
+.panel ul:last-child {
+	margin-bottom: 0px;
+}
+
+.navbar,
 .progress-bar {
 	background-color: #28231d;
 }
@@ -51,6 +56,11 @@ nav.navbar-inverse,
 	min-height: auto;
 	padding-top: 5px;
 	padding-bottom: 5px;
+	color: #777;
+}
+
+.navbar.filters .navbar-right {
+	margin-right: 0px;
 }
 
 .panel.panel-default {
@@ -174,6 +184,14 @@ button.category:focus {
 .filters button.category:hover:after,
 .filters button.category:focus:after {
 	content: " - X";
+}
+
+.fn {
+	font-size: 10px;
+}
+
+.fn p {
+	margin-bottom: 5px;
 }
 
 @media screen and (max-width: 330px) {

@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {
   Button,
+  Nav,
   Navbar
 } from 'react-bootstrap';
 
@@ -85,16 +86,21 @@ class Filters extends React.Component {
     return <div>
       {(this.props.tags.length > 0 || this.props.categories.length > 0) &&
         <Navbar fixedBottom className="filters">
-          {this.props.tags.map(function(tag, index){
-            return <Button key={index} className="tag" onClick={function() {removeTag(tag)}}>
-              {tag}
-            </Button>;
-          })}
-          {this.props.categories.map(function(category, index){
-            return <Button key={index} className="category" onClick={function() {removeCategory(category)}}>
-              {category}
-            </Button>;
-          })}
+          <Navbar.Header>
+            Filters
+          </Navbar.Header>
+          <Nav pullRight>
+            {this.props.tags.map(function(tag, index){
+              return <Button key={index} className="tag" onClick={function() {removeTag(tag)}}>
+                {tag}
+              </Button>;
+            })}
+            {this.props.categories.map(function(category, index){
+              return <Button key={index} className="category" onClick={function() {removeCategory(category)}}>
+                {category}
+              </Button>;
+            })}
+          </Nav>
         </Navbar>
       }
     </div>
