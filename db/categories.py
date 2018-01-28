@@ -167,6 +167,8 @@ class All(object):
 
         self.Travel = get(id=29, name="Travel", parent=self.Nonfiction)
 
+        self.Sports = get(id=52, name="Sports", parent=self.Nonfiction)
+
         # Fiction
         self.Fiction = get(id=14, name="Fiction")
 
