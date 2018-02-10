@@ -147,6 +147,7 @@ class All(object):
         self.Law = get(id=32, name="Law", parent=self.SocialScience)
         self.Politics = get(id=10, name="Politics", parent=self.SocialScience)
         self.Economics = get(id=6, name="Economics", parent=self.SocialScience)
+        self.Policy = get(id=54, name="Policy", parent=self.SocialScience)
         self.Finance = get(id=53, name="Finance", parent=self.Nonfiction)
         self.Sociology = get(id=48, name="Sociology",
                              parent=self.SocialScience)
