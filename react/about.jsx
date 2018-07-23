@@ -13,7 +13,7 @@ class About extends React.Component {
         <Image className="center-block" src="/static/panda.png" alt="Panda" circle responsive/>
         <div>
           <p>
-            Software engineer <a href="https://twitter.com/plaid">@plaid</a>.
+            Engineering manager <a href="https://twitter.com/plaid">@plaid</a>.
             <br/>
             Previously software engineer <a href="https://twitter.com/vessel">@vessel</a>,
               intern <a href="https://twitter.com/dropbox">@dropbox</a> and <a href="https://twitter.com/addepar">@addepar</a>.
