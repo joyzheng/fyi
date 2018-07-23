@@ -29,8 +29,8 @@ class Books extends Filterable {
 
   refreshData() {
     const body = {
-      tags: this.state.filter_tags,
-      categories: this.state.filter_categories
+      tags: this.tags(),
+      categories: this.categories(),
     };
     loadData(this, () => fetch("/api/books", {
       headers: {
@@ -72,7 +72,7 @@ class Books extends Filterable {
           }
         </Loadable>
       </div>
-      <Filters tags={this.state.filter_tags} categories={this.state.filter_categories}
+      <Filters tags={this.tags()} categories={this.categories()}
                removeTag={removeTag} removeCategory={removeCategory} />
     </div></DocumentTitle>
   }

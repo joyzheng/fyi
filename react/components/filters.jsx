@@ -5,16 +5,15 @@ import {
   Nav,
   Navbar
 } from 'react-bootstrap';
+import qs from 'qs';
 
 class Filterable extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    this.state = {
-      filter_tags: [],
-      filter_categories: [],
-    };
-
+    this.state = {};
+    this.tags = this.tags.bind(this);
+    this.categories = this.categories.bind(this);
     this.addTag = this.addTag.bind(this);
     this.addCategory = this.addCategory.bind(this);
     this.removeTag = this.removeTag.bind(this);
@@ -30,52 +29,80 @@ class Filterable extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!(_.isEqual(this.state.filter_tags, prevState.filter_tags) &&
-          _.isEqual(this.state.filter_categories, prevState.filter_categories))) {
+    if (!(_.isEqual(this.categories(), this.categories(prevProps.location)) &&
+          _.isEqual(this.tags(), this.tags(prevProps.location)))) {
       this.refreshData();
     }
   }
 
+  categories(location) {
+    if (location == null) {
+      location = this.props.location;
+    }
+    return qs.parse(location.search, { ignoreQueryPrefix: true }).categories || [];
+  }
+
+  tags(location) {
+    if (location == null) {
+      location = this.props.location;
+    }
+    return qs.parse(location.search, { ignoreQueryPrefix: true }).tags || [];
+  }
+
   addTag(value) {
-    this.setState((prevState) => (
-      this.state.filter_tags.indexOf(value) === -1 ?
-      {
-        filter_tags: prevState.filter_tags.concat([value])
-      }
-      : {}));
+    const currentTags = this.tags();
+    if (currentTags.indexOf(value) === -1) {
+      this.props.history.push({
+        pathname: this.props.location.pathname,
+        search: qs.stringify({
+          categories: this.categories(),
+          tags: currentTags.concat([value]),
+        }),
+      }, { addQueryPrefix: true, encodeValuesOnly: true });
+    }
   }
 
   addCategory(value) {
-    this.setState((prevState) => (
-      this.state.filter_categories.indexOf(value) === -1 ?
-      {
-        filter_categories: this.state.filter_categories.concat([value])
-      }
-      : {}));
+    const currentCategories = this.categories();
+    if (currentCategories.indexOf(value) === -1) {
+      this.props.history.push({
+        pathname: this.props.location.pathname,
+        search: qs.stringify({
+          categories: currentCategories.concat([value]),
+          tags: this.tags(),
+        }),
+      }, { addQueryPrefix: true, encodeValuesOnly: true });
+    }
   }
 
   removeTag(value) {
-    this.setState((prevState) => {
-      const index = this.state.filter_tags.indexOf(value);
-      if (index > -1) {
-        const filter_tags = this.state.filter_tags.slice();
-        filter_tags.splice(index, 1);
-        return {filter_tags: filter_tags};
-      }
-      return {};
-    });
+    const currentTags = this.tags();
+    const index = currentTags.indexOf(value);
+    if (index > -1) {
+      currentTags.splice(index, 1);
+      this.props.history.push({
+        pathname: this.props.location.pathname,
+        search: qs.stringify({
+          categories: this.categories(),
+          tags: currentTags,
+        }),
+      }, { addQueryPrefix: true, encodeValuesOnly: true });
+    }
   }
 
   removeCategory(value) {
-    this.setState((prevState) => {
-      const index = this.state.filter_categories.indexOf(value);
-      if (index > -1) {
-        const filter_categories = this.state.filter_categories.slice();
-        filter_categories.splice(index, 1);
-        return {filter_categories: filter_categories};
-      }
-      return {};
-    });
+    const currentCategories = this.categories();
+    const index = currentCategories.indexOf(value);
+    if (index > -1) {
+      currentCategories.splice(index, 1);
+      this.props.history.push({
+        pathname: this.props.location.pathname,
+        search: qs.stringify({
+          categories: currentCategories,
+          tags: this.tags(),
+        }),
+      }, { addQueryPrefix: true, encodeValuesOnly: true });
+    }
   }
 }
 
