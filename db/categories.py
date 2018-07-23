@@ -116,6 +116,7 @@ class All(object):
         self.Memoir = get(id=3, name="Memoir", parent=self.Biography)
 
         self.Business = get(id=28, name="Business", parent=self.Nonfiction)
+        self.Management = get(id=55, name="Management", parent=self.Business)
         self.Education = get(id=34, name="Education", parent=self.Nonfiction)
 
         self.Food = get(id=4, name="Food", parent=self.Nonfiction)
