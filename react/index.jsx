@@ -13,6 +13,7 @@ import {
   Navbar,
   NavItem
 } from 'react-bootstrap';
+import DocumentTitle from 'react-document-title';
 
 import Home from './home';
 import About from './about';
@@ -72,6 +73,8 @@ class App extends React.Component {
 }
 
 ReactDOM.render(
-  <App />,
+  <DocumentTitle title="joy.fyi">
+    <App />
+  </DocumentTitle>,
   document.getElementById('app')
 )

@@ -10,6 +10,7 @@ import {
 import {
   Tree,
 } from 'react-d3-tree';
+import DocumentTitle from 'react-document-title';
 
 import { BookDescriptor, BookList } from './components/books';
 import { Filterable, Filters } from './components/filters';
@@ -123,7 +124,7 @@ class Explore extends Filterable {
     const removeTag = this.removeTag;
     const removeCategory = this.removeCategory;
 
-    return <div>
+    return <DocumentTitle title="joy.fyi | Explore Books"><div>
       <div className="container">
         <h1>Explore</h1>
         <BookDescriptor/>
@@ -141,7 +142,7 @@ class Explore extends Filterable {
       </div>
       <Filters tags={this.state.filter_tags} categories={this.state.filter_categories}
                removeTag={removeTag} removeCategory={removeCategory} />
-    </div>
+    </div></DocumentTitle>
   }
 }
 

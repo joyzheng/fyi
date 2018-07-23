@@ -10,6 +10,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from 'react-bootstrap';
+import DocumentTitle from 'react-document-title';
 import {
   BarChart,
   Bar,
@@ -229,7 +230,7 @@ class Books extends React.Component {
   render() {
     const _this = this;
     const setGroup = this.setGroup;
-    return <div>
+    return <DocumentTitle title="joy.fyi | Books"><div>
       <div className="container">
         <h1>Books</h1>
         <Panel>
@@ -300,7 +301,7 @@ class Books extends React.Component {
           </p>
         </div>
       </div>
-    </div>;
+    </div></DocumentTitle>;
   }
 }
 

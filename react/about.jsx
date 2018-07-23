@@ -5,10 +5,11 @@ import {
   Image,
   Panel
 } from 'react-bootstrap';
+import DocumentTitle from 'react-document-title';
 
 class About extends React.Component {
   render () {
-    return <div className="container main">
+    return <DocumentTitle title="joy.fyi | About"><div className="container main">
       <panel>
         <Image className="center-block" src="/static/panda.png" alt="Panda" circle responsive/>
         <div>
@@ -25,7 +26,7 @@ class About extends React.Component {
           </p>
         </div>
       </panel>
-    </div>
+    </div></DocumentTitle>
   }
 }
 

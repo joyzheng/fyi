@@ -6,6 +6,7 @@ import {
   Panel,
   ProgressBar
 } from 'react-bootstrap';
+import DocumentTitle from 'react-document-title';
 
 import { BookDescriptor, BookList } from './components/books';
 import { Filterable, Filters } from './components/filters';
@@ -49,7 +50,7 @@ class Books extends Filterable {
     const removeTag = this.removeTag;
     const removeCategory = this.removeCategory;
 
-    return <div>
+    return <DocumentTitle title="joy.fyi | List Books"><div>
       <div className="container">
         <h1>List</h1>
         <BookDescriptor/>
@@ -73,7 +74,7 @@ class Books extends Filterable {
       </div>
       <Filters tags={this.state.filter_tags} categories={this.state.filter_categories}
                removeTag={removeTag} removeCategory={removeCategory} />
-    </div>
+    </div></DocumentTitle>
   }
 }
 
