@@ -156,6 +156,19 @@ button.tag:active:focus {
 	background-color: #003000;
 }
 
+button.tag.tag_Abandoned {
+	color: #3d0606;
+	border-color: #a52121;
+}
+
+button.tag.tag_Abandoned:active,
+button.tag.tag_Abandoned:hover,
+button.tag.tag_Abandoned:focus,
+button.tag.tag_Abandoned:active:focus {
+	color: #ffffff;
+	background-color: #3d0606;
+}
+
 button.category:active,
 button.category:active:focus,
 button.category:hover,

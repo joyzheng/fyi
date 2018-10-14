@@ -15,12 +15,12 @@ class Book extends React.Component {
     const addCategory = this.props.filterActions.addCategory;
 
     const tags = this.props.tags.map(function(tag, index){
-      return <Button key={index} className="tag" onClick={function () {addTag(tag)}}>
+      return <Button key={tag} className={"tag tag_" + tag} onClick={function () {addTag(tag)}}>
         {tag}
       </Button>;
     });
     const categories = this.props.categories.map(function(category, index){
-      return <Button key={index} className="category" onClick={function () {addCategory(category)}}>
+      return <Button key={category} className="category" onClick={function () {addCategory(category)}}>
         {category}
       </Button>;
     });

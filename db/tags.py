@@ -21,7 +21,7 @@ def _get(session, id, name):
     return res
 
 
-Unfinished = Tag(id=1, name="Unfinished")
+Abandoned = Tag(id=1, name="Abandoned")
 
 
 class All(object):
@@ -30,4 +30,4 @@ class All(object):
             return _get(session, *args, **kwargs)
 
         self.Recommended = get(id=0, name="Recommended")
-        self.Unfinished = get(id=1, name="Unfinished")
+        self.Abandoned = get(id=1, name="Abandoned")

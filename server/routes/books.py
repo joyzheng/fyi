@@ -22,7 +22,7 @@ def add(app):
             other = []
             for book in books:
                 if (book.finished_at is None and
-                        db.tags.Unfinished not in book.tags):
+                        db.tags.Abandoned not in book.tags):
                     current.append(book.json())
                 else:
                     other.append(book.json())

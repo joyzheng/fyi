@@ -71,12 +71,12 @@ def add(args):
     session.commit()
 
 
-def mark_unfinished(args):
+def mark_abandoned(args):
     session = Session()
 
     book = get_book(session, args.title)
     tags = tags_raw.All(session)
-    book.tags.append(tags.Unfinished)
+    book.tags.append(tags.Abandoned)
 
     session.commit()
 
@@ -97,10 +97,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='sub-command help')
 
-    parser_finish = subparsers.add_parser('mark_unfinished',
-                                          help='mark book as unfinished')
+    parser_finish = subparsers.add_parser('mark_abandoned',
+                                          help='mark book as abandoned')
     parser_finish.add_argument('title', type=str, help='Title of book')
-    parser_finish.set_defaults(func=mark_unfinished)
+    parser_finish.set_defaults(func=mark_abandoned)
 
     parser_finish = subparsers.add_parser('finish',
                                           help='mark book as finished')

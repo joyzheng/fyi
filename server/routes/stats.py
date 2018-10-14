@@ -49,7 +49,7 @@ SERIES = [
         "name": "Started",
         "labels": ["Completed", "Abandoned", "In Progress"],
         "fill": ["#007700", "#a52121", "#999999"],
-        "keys": ["start_finished", "start_unfinished",
+        "keys": ["start_finished", "start_abandoned",
                  "start_inprogress"],
     },
     {
@@ -139,8 +139,8 @@ def update_stats(bucket_values, buckets, book):
         if book.started_at and lower <= book.started_at < upper:
             if book.finished_at:
                 bucket["start_finished"] += 1
-            elif any(tag.name == "Unfinished" for tag in book.tags):
-                bucket["start_unfinished"] += 1
+            elif any(tag.name == "Abandoned" for tag in book.tags):
+                bucket["start_abandoned"] += 1
             else:
                 bucket["start_inprogress"] += 1
 
