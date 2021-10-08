@@ -71,6 +71,28 @@ def add(args):
     session.commit()
 
 
+def add_complete(args):
+    args.title = input('Title: ')
+    args.subtitle = input('Subtitle: ')
+    if args.subtitle == '':
+        args.subtitle = None
+
+    args.first = []
+    args.last = []
+    for _ in range(args.authors):
+        args.first.append(input('First: '))
+        args.last.append(input('Last: '))
+    args.amzn = input('Amazon ID: ')
+    args.year = int(input('Year: '))
+    args.length = int(input('Length: '))
+    args.categories = input('Categories: ')
+
+    args.started_at = input('Started at: ')
+    args.finished = True
+    args.finished_at = args.started_at
+
+    add(args)
+
 def mark_abandoned(args):
     session = Session()
 
@@ -128,6 +150,14 @@ if __name__ == "__main__":
     parser_add.add_argument('--started_at', type=str)
     parser_add.add_argument('--finished_at', type=str)
     parser_add.set_defaults(func=add)
+
+
+    parser_add_complete = subparsers.add_parser('add_complete',
+                                                help='add a completed book')
+    parser_add_complete.add_argument('--authors', type=int, default=1)
+    parser_add_complete.add_argument('--recommend', action='store_true')
+    parser_add_complete.add_argument('--series', type=str, help='Series title')
+    parser_add_complete.set_defaults(func=add_complete)
 
     args = parser.parse_args()
     args.func(args)

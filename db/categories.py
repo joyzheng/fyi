@@ -142,8 +142,8 @@ class All(object):
         self.China = get(id=33, name="China", parent=self.Asia)
         self.Russia = get(id=38, name="Russia", parent=self.World)
         self.Oceania = get(id=51, name="Oceania", parent=self.World)
-        self.Oceania = get(id=56, name="Mexico", parent=self.World)
-        self.Oceania = get(id=57, name="Australia", parent=self.World)
+        self.Mexico = get(id=56, name="Mexico", parent=self.World)
+        self.Australia = get(id=57, name="Australia", parent=self.World)
 
         self.SocialScience = get(id=47, name="Social Sciences",
                                  parent=self.Nonfiction)
