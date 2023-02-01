@@ -126,6 +126,16 @@ def mark_abandoned(args):
     session.commit()
 
 
+def recommend(args):
+    session = Session()
+
+    book = get_book(session, args.title)
+    tags = tags_raw.All(session)
+    book.tags.append(tags.Recommended)
+
+    session.commit()
+
+
 def finish(args):
     session = Session()
 
@@ -146,6 +156,11 @@ if __name__ == "__main__":
                                           help='mark book as abandoned')
     parser_finish.add_argument('title', type=str, help='Title of book')
     parser_finish.set_defaults(func=mark_abandoned)
+
+    parser_finish = subparsers.add_parser('recommend',
+                                          help='mark book as reommended')
+    parser_finish.add_argument('title', type=str, help='Title of book')
+    parser_finish.set_defaults(func=recommend)
 
     parser_finish = subparsers.add_parser('finish',
                                           help='mark book as finished')
