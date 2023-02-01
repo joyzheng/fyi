@@ -9,6 +9,7 @@ from cli.authors import get_or_create_author
 from cli.books import get_book
 from cli.series import get_or_create_series
 from cli.utils import (
+    prompt_bool,
     prompt_named_options,
 )
 
@@ -49,6 +50,9 @@ def add(args):
     if args.recommend:
         tags = tags_raw.All(session)
         book.tags.append(tags.Recommended)
+    if args.abandoned:
+        tags = tags_raw.All(session)
+        book.tags.append(tags.Abandoned)
     if args.finished:
         book.finished_at = datetime.utcnow()
     if args.series:
@@ -71,27 +75,46 @@ def add(args):
     session.commit()
 
 
-def add_complete(args):
-    args.title = input('Title: ')
-    args.subtitle = input('Subtitle: ')
-    if args.subtitle == '':
-        args.subtitle = None
+def add_loop(args):
 
-    args.first = []
-    args.last = []
-    for _ in range(args.authors):
-        args.first.append(input('First: '))
-        args.last.append(input('Last: '))
-    args.amzn = input('Amazon ID: ')
-    args.year = int(input('Year: '))
-    args.length = int(input('Length: '))
-    args.categories = input('Categories: ')
+    while True:
+        args.title = input('Title: ').strip()
+        args.subtitle = input('Subtitle: ')
+        if args.subtitle == '':
+            args.subtitle = None
+        else:
+            args.subtitle = args.subtitle.strip()
 
-    args.started_at = input('Started at: ')
-    args.finished = True
-    args.finished_at = args.started_at
+        args.first = []
+        args.last = []
+        authors_count = int(input('Author Count: ') or 1)
+        for _ in range(authors_count):
+            args.first.append(input('First: ').strip())
+            args.last.append(input('Last: ').strip())
 
-    add(args)
+        series = input('Series title: ')
+        if series != '':
+            args.series = series.strip()
+        else:
+            args.series = None
+
+        args.amzn = input('Amazon ID: ').strip()
+        args.year = int(input('Year: '))
+        args.length = int(input('Length: '))
+        args.categories = input('Categories: ')
+
+        args.started_at = input('Started at: ')
+        args.finished = prompt_bool('Finished? ')
+        if args.finished:
+            args.finished_at = args.started_at
+        else:
+            args.finished_at = None
+        args.recommend = prompt_bool('Recommend? ')
+        args.abandoned = prompt_bool('Abandoned? ')
+
+        add(args)
+
+        print('Book added\n')
 
 def mark_abandoned(args):
     session = Session()
@@ -147,17 +170,14 @@ if __name__ == "__main__":
     parser_add.add_argument('--categories', type=str, required=True)
     parser_add.add_argument('--finished', action='store_true')
     parser_add.add_argument('--recommend', action='store_true')
+    parser_add.add_argument('--abandoned', action='store_true')
     parser_add.add_argument('--started_at', type=str)
     parser_add.add_argument('--finished_at', type=str)
     parser_add.set_defaults(func=add)
 
-
-    parser_add_complete = subparsers.add_parser('add_complete',
-                                                help='add a completed book')
-    parser_add_complete.add_argument('--authors', type=int, default=1)
-    parser_add_complete.add_argument('--recommend', action='store_true')
-    parser_add_complete.add_argument('--series', type=str, help='Series title')
-    parser_add_complete.set_defaults(func=add_complete)
+    parser_add_complete = subparsers.add_parser('add_loop',
+                                                help='add books in a loop')
+    parser_add_complete.set_defaults(func=add_loop)
 
     args = parser.parse_args()
     args.func(args)
